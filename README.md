@@ -3,7 +3,7 @@
 css-autoprefixer is an extension for the code editor CodeTasty that adds prefixes to css files upon saving and can be also used as plugin for less/scss compiler.
 
 
-###e Options
+### Options
 
 Options can be set in the first line of the edited file:
 
