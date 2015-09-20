@@ -13,6 +13,6 @@ out: prefixed file destination
 
     /* out: ., app.css, ../style.css */
 
-plugin: enables autoprefixer, can be used in less/css compiler options
+plugin: enables autoprefixer, can be used in less/scss compiler options
 
     /* plugin: css-autoprefixer */
