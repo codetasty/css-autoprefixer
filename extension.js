@@ -54,8 +54,9 @@ define(function(require, exports, module) {
 				if (error) {
 					Notification.open({
 						type: 'error',
-						title: 'Autoprefix failed.',
-						description: error.message + ' on ' + error.line + ':' + error.column
+						title: 'CSS autoprefix failed',
+						description: error.message + ' on ' + error.line + ':' + error.column,
+						autoClose: true
 					});
 					return false;
 				}
