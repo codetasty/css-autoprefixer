@@ -67,6 +67,10 @@ define(function(require, exports, module) {
 			});
 		}
 	});
+	
+	Extension.api({
+		imports: ['plugin']
+	});
 
 	module.exports = Extension.api();
 });
