@@ -9,21 +9,21 @@ define(function(require, exports, module) {
 	
 	var Autoprefixer = require('./autoprefixer');
 	
-	var EditorSession = require('modules/editor/ext/session');
+	var EditorEditors = require('modules/editor/ext/editors');
 	
 	var Extension = ExtensionManager.register({
 		name: 'css-autoprefixer',
 		
 	}, {
 		init: function() {
-			EditorSession.on('save', this.onSave);
+			EditorEditors.on('save', this.onSave);
 		},
 		destroy: function() {
-			EditorSession.off('save', this.onSave);
+			EditorEditors.off('save', this.onSave);
 		},
-		onSave: function(e) {
-			if (Extension._exts.indexOf(e.storage.extension) !== -1) {
-				Extension.compile(e.storage.workspaceId, e.storage.path, e.session.data.getValue());
+		onSave: function(session, value) {
+			if (Extension._exts.indexOf(session.storage.extension) !== -1) {
+				Extension.compile(session.storage.workspaceId, session.storage.path, value);
 			}
 		},
 		_exts: ['css'],
