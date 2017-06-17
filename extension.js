@@ -1,34 +1,31 @@
 define(function(require, exports, module) {
 	var ExtensionManager = require('core/extensionManager');
 	
-	var Socket = require('core/socket');
-	var Workspace = require('core/workspace');
-	var Notification = require('core/notification');
-	var Fn = require('core/fn');
+	var Utils = require('core/utils');
 	var FileManager = require('core/fileManager');
 	
 	var Autoprefixer = require('./autoprefixer');
 	
 	var EditorEditors = require('modules/editor/ext/editors');
+	var EditorCompiler = require('modules/editor/ext/compiler');
 	
 	var Extension = ExtensionManager.register({
 		name: 'css-autoprefixer',
 		
 	}, {
+		watcher: null,
+		compilerName: 'CSS Autoprefixer',
 		init: function() {
-			EditorEditors.on('save', this.onSave);
+			EditorCompiler.addPlugin(this.name, this.onPlugin);
 		},
 		destroy: function() {
-			EditorEditors.off('save', this.onSave);
+			EditorCompiler.removePlugin(this.name);
 		},
-		onSave: function(session, value) {
-			if (Extension._exts.indexOf(session.storage.extension) !== -1) {
-				Extension.compile(session.storage.workspaceId, session.storage.path, value);
-			}
-		},
-		_exts: ['css'],
-		plugin: function(css, cb) {
-			Autoprefixer.process(css, { add: false, browsers: [] }).then(function(cleaned) {
+		onPlugin: function(output, cb) {
+			Autoprefixer.process(output, {
+				add: false,
+				browsers: []
+			}).then(function(cleaned) {
 				Autoprefixer.process(cleaned.css).then(function(prefixed) {
 					cb(prefixed.css);
 				}, function(error) {
@@ -38,39 +35,7 @@ define(function(require, exports, module) {
 				cb(null, error);
 			});
 		},
-		compile: function(workspaceId, path, doc) {
-			var self = this;
-			var options = FileManager.getFileOptions(doc, /^\s*\/\*\s*(.+)\*\//);
-			
-			if (!options.out || options.plugin != "css-autoprefixer") {
-				return false;
-			}
-			
-			var destination = FileManager.parsePath(path, options.out, [this._exts.join('|'), 'css']);
-			
-			if (!destination) {
-				return false;
-			}
-			
-			this.plugin(doc.substring(doc.indexOf("\n") + 1), function(output, error) {
-				if (error) {
-					Notification.open({
-						type: 'error',
-						title: 'CSS autoprefix failed',
-						description: error.message + ' on ' + error.line + ':' + error.column,
-						autoClose: true
-					});
-					return false;
-				}
-				
-				FileManager.saveFile(workspaceId, destination, output, null);
-			});
-		}
 	});
 	
-	Extension.api({
-		imports: ['plugin']
-	});
-
 	module.exports = Extension.api();
 });
