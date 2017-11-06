@@ -1,27 +1,41 @@
+/* global define, $ */
+"use strict";
+
 define(function(require, exports, module) {
-	var ExtensionManager = require('core/extensionManager');
+	const ExtensionManager = require('core/extensionManager');
 	
-	var Utils = require('core/utils');
-	var FileManager = require('core/fileManager');
+	const Utils = require('core/utils');
+	const FileManager = require('core/fileManager');
 	
-	var Autoprefixer = require('./autoprefixer');
+	const Autoprefixer = require('./autoprefixer');
 	
-	var EditorEditors = require('modules/editor/ext/editors');
-	var EditorCompiler = require('modules/editor/ext/compiler');
+	const EditorEditors = require('modules/editor/ext/editors');
+	const EditorCompiler = require('modules/editor/ext/compiler');
 	
-	var Extension = ExtensionManager.register({
-		name: 'css-autoprefixer',
+	class Extension extends ExtensionManager.Extension {
+		constructor() {
+			super({
+				name: 'css-autoprefixer',
+			});
+			
+			this.watcher = null;
+			
+			this.compilerName = 'CSS Autoprefixer';
+		}
 		
-	}, {
-		watcher: null,
-		compilerName: 'CSS Autoprefixer',
-		init: function() {
+		init() {
+			super.init();
+			
 			EditorCompiler.addPlugin(this.name, this.onPlugin);
-		},
-		destroy: function() {
+		}
+		
+		destroy() {
+			super.destroy();
+			
 			EditorCompiler.removePlugin(this.name);
-		},
-		onPlugin: function(output, cb) {
+		}
+		
+		onPlugin(output, cb) {
 			Autoprefixer.process(output, {
 				add: false,
 				browsers: []
@@ -34,8 +48,9 @@ define(function(require, exports, module) {
 			}, function(error) {
 				cb(null, error);
 			});
-		},
-	});
+		}
+		
+	}
 	
-	module.exports = Extension.api();
+	module.exports = new Extension();
 });
